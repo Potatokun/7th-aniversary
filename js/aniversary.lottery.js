@@ -46,7 +46,6 @@ Object.extend(Object, {
             this.clz = config.clz||'default';
             this.off = config.off || function(){};
             this.ok = config.og || function(){};
-            this.diss = this.suicide;
             this.init();
         };
 
@@ -69,7 +68,8 @@ Object.extend(Object, {
                 $(this.bodyNode).appendTo(this.node.find('.body'));
                 
                 var isExist = this.exist();
-                isExist? '' : this.node.appendTo('body');
+                //isExist? '' : this.node.appendTo('body');
+                this.node.appendTo('body');
                 this.evtBind();
                 this.node.show();
             },
@@ -150,7 +150,7 @@ $('#J-lottery').click(function(){
     setTimeout(function(){          
         $('.red').removeClass('shake-chunk');
 
-        var LotteryToast = new aniversary.Dialog({
+        LotteryToast = new aniversary.Dialog({
             'title' : '恭喜您获得以下奖励',
             'clz' : 'reward-toast',
             'content' : '<div class="u-win content">\
@@ -174,11 +174,9 @@ $('#J-lottery').click(function(){
                                 </ul>\
                             </div>\
                             <div class="notice">现金红包和游戏虚拟道具2选1，确认领取后无法更改。</div>\
-                            <button class="u-btn get-gift">确认领取</button>\
+                            <button class="u-btn get-gift submit">确认领取</button>\
                         <div>'
         });
-
-        console.log(LotteryToast);
 
     },2000);
     
@@ -189,4 +187,37 @@ $('body').on('click','.reward-toast .check-box',function(){
 
     $('.reward-toast .check-box').find('i').removeClass('on');
     $(_me).find('i').addClass('on');
+});
+
+//window.adress
+$('body').on('click','.js-adress',function(){
+   new aniversary.Dialog({
+       'title' : '填写邮寄地址',
+       'clz' : 'ui-adress',
+       'content' : '<div class="u-win content">\
+                        <div class="notice">请填写正确的邮寄地址or个人信息，保持电话畅通，24小时内客服会与您核实信息！~</div>\
+                        <div class="adress-form">\
+                            <div class="form-row"><input name="" placeholder="请填写收件人姓名" type="text"></div>\
+                            <div class="form-row"><input name="" placeholder="请填写收件人手机号码" type="text"></div>\
+                            <div class="form-row"><input name="" placeholder="请填写正确的邮寄信息" type="text"></div>\
+                        </div>\
+                        <div class="u-btn js-adress-comfirm submit">确认信息</div>\
+                    </div>'
+   });
+});
+
+
+//window.record
+$('body').on('click','.js-record',function(){
+   new aniversary.Dialog({
+       'title' : '我的红包',
+       'clz' : 'ui-record type-1',
+       'content' : '<div class="u-win content">\
+                        <div class="gift-list">\
+                            <div class="gift-item">现金红包15元</div>\
+                            <div class="gift-item">电竞鼠标</div>\
+                        </div>\
+                        <div class="notice">现金红包发放规则，实物道具发放规则，虚拟道具发放规则。</div>\
+                    </div>'
+   });
 });

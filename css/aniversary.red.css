@@ -170,7 +170,6 @@ body{
 
 /*  windows ui  */
 .u-window .title{
-  width: 100%;
   padding-top: 60px;
   color: #f2ff28;
   font-size: 50px;
@@ -247,7 +246,7 @@ body{
   font-weight: 700;
 }
 
-.u-window .get-gift{
+.u-window .u-btn.submit{
   display: block;
   width: 345px;
   height: 50px;
@@ -261,4 +260,81 @@ body{
   border: none;
   border-radius: 8px;
   outline: none;
+}
+
+/* window adress */
+.u-window.ui-adress{
+  width: 589px;
+  height: 602px;
+  background: url(../images/ui-bg-adress.png) no-repeat;
+}
+
+.ui-adress .body{
+  padding: 0 105px;
+}
+
+.ui-adress .title{
+  padding: 72px 105px 0;
+  margin-bottom: 10px;
+  text-align: left;
+}
+
+.ui-adress .notice{
+  font-size: 18px;
+}
+
+.ui-adress .adress-form{
+  margin-top: 25px;
+}
+
+.adress-form .form-row{
+  margin-bottom: 10px;
+  padding: 0 10px;
+  background: #500000;
+  border-radius: 6px;
+}
+
+.adress-form input{
+  display: block;
+  border: none;
+  width: 100%;
+  height: 16px;
+  padding: 8px 0;
+  font-size: 14px;
+  text-align: center;
+  color: #a51c1c;
+  background: #500000; 
+  outline: none;
+  text-align: left;
+}
+
+.adress-form input::-webkit-input-placeholder {color: #a51c1c;}
+.adress-form input:-moz-placeholder {color: #a51c1c;}
+.adress-form input::-moz-placeholder {color: #a51c1c;}
+.adress-form input:-ms-input-placeholder {color: #a51c1c;}
+
+.ui-adress .u-btn.submit{
+  width: 100%;
+}
+
+.ui-record.type-1{
+  width: 751px;
+  height: 415px;
+  background: url(../images/ui-bg-redetail.png) no-repeat;  
+}
+
+.ui-record.type-1 .title{
+  margin-bottom: 30px;
+}
+
+.ui-record.type-1 .gift-item{
+  width: 470px;
+  height: 45px;
+  line-height: 45px;
+  margin: 0 auto 20px;
+  background: #500000;
+  text-align: center;
+  color: #ffe828;
+  font-size: 20px;
+  font-weight: 700;
 }
