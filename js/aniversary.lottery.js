@@ -71,6 +71,7 @@ Object.extend(Object, {
                 //isExist? '' : this.node.appendTo('body');
                 this.node.appendTo('body');
                 this.evtBind();
+                this.setPos();
                 this.node.show();
             },
 
@@ -79,6 +80,15 @@ Object.extend(Object, {
                 this.node.on('click','button.close',function(){
                     self.suicide();
                 });
+            },
+
+            setPos : function(){
+                this.node.css({
+                    'margin-left' : parseInt(this.node.width()) * -0.5,
+                    'margin-top' : parseInt(this.node.height()) * -0.5,
+                    'left' : '50%',
+                    'top' : '50%'
+                })
             },
 
             suicide : function (){
@@ -94,6 +104,66 @@ Object.extend(Object, {
         return Dialog;
     }());
     aniversary.Dialog = Dialog;
+
+    var Toast = (function () {
+
+        function Toast (config){
+            this.type = config.type;
+            this.text = config.text;
+
+            
+
+            this.init();
+        };
+
+        Toast.prototype = {
+
+            init : function(){
+
+                this.node = $('<div class="u-toast"><div></div></div>');
+
+                if(!this.isExist()){
+                    $('body').append(this.node);
+                }
+                else{
+                    this.node = $('.u-toast');
+                };
+
+                this.setType();
+                this.setText();
+
+                this.show();
+            },
+
+            isExist : function(){
+                return $('.u-toast').length ? true : false;
+            },
+
+            setType: function() {
+                //'success', 'error', 'info', 'warn'
+                this.node.children()[0].className = ( this.type || 'success');
+            },            
+
+            setText: function(){
+                this.node.children().html(this.text);
+            },            
+
+            show: function(){
+                this.node.stop(true, true)
+                    .fadeIn().delay(1000)
+                    .fadeOut();
+            },
+                
+            suicide : function(){
+                //TODO
+            }
+
+        };
+
+        return Toast;
+
+    }());
+    aniversary.Toast = Toast;
 
     var Lottery = (function () {
 
@@ -182,10 +252,10 @@ $('#J-lottery').click(function(){
     
 });
 
-$('body').on('click','.reward-toast .check-box',function(){
+$('body').on('click','.check-box',function(){
     var _me = this;
 
-    $('.reward-toast .check-box').find('i').removeClass('on');
+    $(_me).closest('.u-window').find('.check-box i').removeClass('on');
     $(_me).find('i').addClass('on');
 });
 
@@ -209,7 +279,11 @@ $('body').on('click','.js-adress',function(){
 
 //window.record
 $('body').on('click','.js-record',function(){
-   new aniversary.Dialog({
+   recordTemp_2(); 
+});
+
+function recordTemp(){
+    return    new aniversary.Dialog({
        'title' : '我的红包',
        'clz' : 'ui-record type-1',
        'content' : '<div class="u-win content">\
@@ -219,5 +293,39 @@ $('body').on('click','.js-record',function(){
                         </div>\
                         <div class="notice">现金红包发放规则，实物道具发放规则，虚拟道具发放规则。</div>\
                     </div>'
-   });
+   });    
+};
+
+function recordTemp_2(){
+    return    new aniversary.Dialog({
+       'title' : '我的红包',
+       'clz' : 'ui-record type-2',
+       'content' : '<div class="u-win content">\
+                        <div class="notice">现金红包和游戏虚拟道具2选1，确认领取后无法更改。</div>\
+                        <div class="gift-list">\
+                            <div class="gift-item">\
+                                <div class="item-name">现金红包15元</div>\
+                                <div class="check-box"><i></i></div>\
+                            </div>\
+                            <div class="gift-item">\
+                                <div class="item-name">现金红包15元</div>\
+                                <div class="check-box"><i></i></div>\
+                            </div>\
+                            <button class="u-btn get-gift submit">确认领取</button>\
+                        </div>\
+                        <div class="gift-list">\
+                            <div class="gift-item">\
+                                <div class="item-name goods">电竞鼠标</div>\
+                            </div>\
+                            <div class="u-btn adress js-adress">填写邮寄地址</div>\
+                        </div>\
+                    </div>'
+   });    
+};
+
+$(document).on('click','.ui-record button.submit',function(){
+    new aniversary.Toast({
+        'text' : '测试文本',
+        'type' : 'error'
+    });
 });

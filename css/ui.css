@@ -49,3 +49,32 @@
 	/* background:#fff; */
 }
 
+/* ------------
+ * UI Toast
+ * ------------ */
+ 
+.u-toast {
+    display:none;
+    position:fixed;
+    _position:absolute;
+    left:0;
+    top:50px;
+    text-align:center;
+    width:100%;
+    z-index:10000;
+}
+
+.u-toast div {
+    display:inline-block;
+    *display:inline; zoom:1;
+    font-size:12px;
+    line-height:20px;
+    padding:5px 20px;
+    color:#fff;
+}
+
+.u-toast .success {background-color:#69af01;}
+.u-toast .error {background-color:#f77e7e;}
+.u-toast .info {background-color:#5bc0de;}
+.u-toast .warn{background-color:#f0ad4e;}
+
