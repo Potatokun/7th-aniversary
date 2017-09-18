@@ -1,38 +1,14 @@
-var aniversary = {};
-
-Object.extend = function(destination, source) {
-    for (var property in source) {
-        destination[property] = source[property]; 
-    }
-    return destination;
+var anniversary = {};
+var UA = {};
+var giftId = 0;
+//Object extend
+function extend(Child, Parent) {
+　　var F = function(){};
+　　F.prototype = Parent.prototype;
+　　Child.prototype = new F();
+　　Child.prototype.constructor = Child;
+　　Child.uber = Parent.prototype;
 }
-
-Object.extend(Object, { 
-    inspect: function(object) {
-        try {
-        if (object == undefined) return'undefined';
-        if (object ==null) return'null';
-        return object.inspect ? object.inspect() : object.toString(); 
-        } catch (e) {
-        if (e instanceof RangeError) return'...';
-        throw e;
-        }
-    },
-    keys: function(object) {
-        var keys = [];
-        for (var property in object)
-        keys.push(property);
-        return keys;
-    },
-    values: function(object) {
-        var values = [];
-        for (var property in object) values.push(object[property]);
-        return values;
-    },
-    clone: function(object) {
-        returnObject.extend({}, object);
-    }
-});
 
 (function(aniversary){
 
@@ -41,6 +17,7 @@ Object.extend(Object, {
     var Dialog = ( function ( ) {
 
         function Dialog(config){
+            config = config || {};
             this.title = config.title || 'default';
             this.bodyNode = config.content;
             this.clz = config.clz||'default';
@@ -72,7 +49,7 @@ Object.extend(Object, {
                 this.node.appendTo('body');
                 this.evtBind();
                 this.setPos();
-                this.node.show();
+                this.appear();
             },
 
             evtBind : function(){
@@ -91,19 +68,23 @@ Object.extend(Object, {
                 })
             },
 
+            appear : function(){
+                this.node.show();
+            },
+
             suicide : function (){
                 this.node.remove();
             },
 
             exist : function(){
-                return $('.u-window').length;
+                return $('.' + this.clz ).length;
             }
 
         };
         
         return Dialog;
     }());
-    aniversary.Dialog = Dialog;
+    anniversary.Dialog = Dialog;
 
     var Toast = (function () {
 
@@ -163,7 +144,7 @@ Object.extend(Object, {
         return Toast;
 
     }());
-    aniversary.Toast = Toast;
+    anniversary.Toast = Toast;
 
     var Lottery = (function () {
 
@@ -209,9 +190,246 @@ Object.extend(Object, {
 
         return Lottery;
     }());
-    aniversary.Lottery = Lottery;
+    anniversary.Lottery = Lottery;
 
-})( aniversary||{} );
+    var AdressDialog = (function(){
+        function AdressDialog (){
+            this.title = '填写邮寄地址';
+            this.clz = 'ui-adress';
+            this.bodyNode =  '<div class="u-win content">\
+                                    <div class="notice">请填写正确的邮寄地址or个人信息，保持电话畅通，24小时内客服会与您核实信息！~</div>\
+                                    <div class="adress-form">\
+                                        <div class="form-row"><input name="name" placeholder="请填写收件人姓名" type="text"></div>\
+                                        <div class="form-row"><input name="tel" placeholder="请填写收件人手机号码" type="text"></div>\
+                                        <div class="form-row"><input name="adress" placeholder="请填写正确的邮寄信息" type="text"></div>\
+                                    </div>\
+                                    <div class="u-btn js-adress-comfirm submit">确认信息</div>\
+                                </div>';                               
+            this.init();
+        };
+        extend( AdressDialog , Dialog );
+
+        AdressDialog.prototype.setPos = function(){
+                this.node.css({
+                    'margin-left' : parseInt(this.node.width()) * -0.5,
+                    'margin-top' : parseInt(this.node.height()) * -0.5,
+                    'left' : '50%',
+                    'top' : '-100%'
+                })        
+        };
+
+        AdressDialog.prototype.appear = function(){
+            var _me = this;
+            $('.ui-record,.reward-toast').animate({
+                'top': '400%'},
+                300, function() {
+                _me.node.show().animate({'top': '50%'},300);
+            });
+        };
+        
+        AdressDialog.prototype.suicide = function(){
+            var _me = this;
+             _me.node.animate({
+                'top': '-100%'},
+                300, function() {
+                _me.node.remove();
+                $('.ui-record,.reward-toast').animate({'top': '50%'},300);
+            });           
+        };
+        
+        AdressDialog.prototype.evtBind = function(){
+            var self = this;
+            this.node.on('click','button.close',function(){
+                self.suicide();
+            });
+            
+            //todo ajaxHandler
+            this.node.on('click','.u-btn.submit',function(){
+                self.validate();
+                if(self._validate)self.sendAjax();
+            });              
+        };
+
+        AdressDialog.prototype.validate = function(){
+            var self = this;
+            self._validate = true;
+            
+            $("input[name]").each(function(){
+                var val = $(this).val();
+
+                if(!val){
+                    new Toast({
+                        'type' : 'error',
+                        'text' : $(this).attr('placeholder')
+                    })
+
+                    self._validate = false;
+
+                    return false;
+                }
+            });
+            
+        };        
+
+        AdressDialog.prototype.sendAjax = function(){
+            //todo ajax
+            new Toast({
+                'text' : '提交成功'
+            })
+            
+            this.callback();
+        };
+        
+        AdressDialog.prototype.callback = function (){
+            this.suicide();
+            UA.adressSubmit = 1;
+        };
+
+        return AdressDialog;
+    }());
+    anniversary.AdressDialog = AdressDialog;
+
+    var LotteryToast = (function () {
+
+        function LotteryToast (){
+            this.title = '恭喜您获得以下奖励';
+            this.clz = 'reward-toast';
+            this.bodyNode = '<div class="u-win content">\
+                                <div class="reward-view">\
+                                    <ul>\
+                                        <li>\
+                                            <div class="item-detail">\
+                                                <div class="item-pic"></div>\
+                                                <div class="item-name"></div>\
+                                            </div>\
+                                            <div class="check-box" data-id="A001"><i></i></div>\
+                                        </li>\
+                                        <li>\
+                                            <div class="item-detail"></div>\
+                                            <div class="check-box" data-id="A002"><i></i></div>\
+                                        </li>\
+                                        <li>\
+                                            <div class="item-detail"></div>\
+                                            <div class="u-btn adress js-adress"></div>\
+                                        </li>\
+                                    </ul>\
+                                </div>\
+                                <div class="notice">现金红包和游戏虚拟道具2选1，确认领取后无法更改。</div>\
+                                <button class="u-btn get-gift submit">确认领取</button>\
+                            <div>'                            
+            this.init();
+        };
+        extend( LotteryToast , Dialog );
+
+        LotteryToast.prototype.suicide = function(){
+            this.node.remove();
+            giftId = 0;
+        };
+
+        LotteryToast.prototype.evtBind = function(){
+            var self = this;
+            this.node.on('click','button.close',function(){
+                self.suicide();
+            });
+            
+            //todo ajaxHandler
+            this.node.on('click','.u-btn.submit',function(){
+                self.validate();
+                if(self._validate)self.sendAjax();
+            });              
+        };
+
+        LotteryToast.prototype.validate = function(){
+            var self = this;
+            self._validate = true;
+            
+            if(giftId == 0){
+                new Toast({
+                    'text' : '请选择奖励',
+                    'type': 'error'
+                }) ;
+                
+                self._validate = false;
+            }
+            
+        };        
+
+        LotteryToast.prototype.sendAjax = function(){
+            //todo ajax
+            new Toast({
+                'text' : '提交成功'
+            });
+            
+            this.callback();
+        };
+        
+        LotteryToast.prototype.callback = function (){
+            this.suicide();
+            UA.getGift = 1;
+            UA.openPack = 1;
+        };
+
+        return LotteryToast;
+    }());
+    anniversary.LotteryToast = LotteryToast;
+
+    var RecordDialog = (function(){
+        function RecordDialog (){
+            this.title = '我的红包';
+            this.clz = 'ui-record type-1';
+            this.bodyNode = '<div class="u-win content">\
+                                <div class="gift-list">\
+                                    <div class="gift-item">现金红包15元</div>\
+                                    <div class="gift-item">电竞鼠标</div>\
+                                </div>\
+                                <div class="notice">现金红包发放规则，实物道具发放规则，虚拟道具发放规则。</div>\
+                            </div>';                        
+            this.init();
+        };
+        extend( RecordDialog , Dialog );
+        
+        return RecordDialog;
+    }());
+    anniversary.RecordDialog = RecordDialog;
+
+    var RecordDialogSP = (function(){
+        function RecordDialogSP (){
+            this.title =  '我的红包';
+            this.clz = 'ui-record type-2';
+            this.bodyNode = '<div class="u-win content">\
+                                <div class="notice">现金红包和游戏虚拟道具2选1，确认领取后无法更改。</div>\
+                                <div class="gift-list">\
+                                    <div class="gift-item">\
+                                        <div class="item-name">现金红包15元</div>\
+                                        <div class="check-box"><i></i></div>\
+                                    </div>\
+                                    <div class="gift-item">\
+                                        <div class="item-name">现金红包15元</div>\
+                                        <div class="check-box"><i></i></div>\
+                                    </div>\
+                                    <button class="u-btn get-gift submit">确认领取</button>\
+                                </div>\
+                                <div class="gift-list">\
+                                    <div class="gift-item">\
+                                        <div class="item-name goods">电竞鼠标</div>\
+                                    </div>\
+                                    <div class="u-btn adress js-adress">填写邮寄地址</div>\
+                                </div>\
+                            </div>';                     
+            this.init();
+        };
+        extend( RecordDialogSP , LotteryToast );
+
+        RecordDialogSP.prototype.callback = function (){
+            UA.getGift = 1;
+            UA.openPack = 1;
+        };        
+
+        return RecordDialogSP;
+    }());
+    anniversary.RecordDialogSP = RecordDialogSP;
+    
+})( anniversary||{} );
 
 var LotteryToast;
 $('#J-lottery').click(function(){
@@ -220,112 +438,39 @@ $('#J-lottery').click(function(){
     setTimeout(function(){          
         $('.red').removeClass('shake-chunk');
 
-        LotteryToast = new aniversary.Dialog({
-            'title' : '恭喜您获得以下奖励',
-            'clz' : 'reward-toast',
-            'content' : '<div class="u-win content">\
-                            <div class="reward-view">\
-                                <ul>\
-                                    <li>\
-                                        <div class="item-detail">\
-                                            <div class="item-pic"></div>\
-                                            <div class="item-name"></div>\
-                                        </div>\
-                                        <div class="check-box"><i></i></div>\
-                                    </li>\
-                                    <li>\
-                                        <div class="item-detail"></div>\
-                                        <div class="check-box"><i></i></div>\
-                                    </li>\
-                                    <li>\
-                                        <div class="item-detail"></div>\
-                                        <div class="u-btn adress js-adress"></div>\
-                                    </li>\
-                                </ul>\
-                            </div>\
-                            <div class="notice">现金红包和游戏虚拟道具2选1，确认领取后无法更改。</div>\
-                            <button class="u-btn get-gift submit">确认领取</button>\
-                        <div>'
-        });
+        new anniversary.LotteryToast();
 
     },2000);
     
 });
 
 $('body').on('click','.check-box',function(){
-    var _me = this;
 
-    $(_me).closest('.u-window').find('.check-box i').removeClass('on');
-    $(_me).find('i').addClass('on');
+    if(UA.getGift)return;
+
+    var _me = $(this);
+
+    _me.closest('.u-window').find('.check-box i').removeClass('on');
+    _me.find('i').addClass('on');
+
+    giftId = _me.data('id');
 });
 
 //window.adress
 $('body').on('click','.js-adress',function(){
-   new aniversary.Dialog({
-       'title' : '填写邮寄地址',
-       'clz' : 'ui-adress',
-       'content' : '<div class="u-win content">\
-                        <div class="notice">请填写正确的邮寄地址or个人信息，保持电话畅通，24小时内客服会与您核实信息！~</div>\
-                        <div class="adress-form">\
-                            <div class="form-row"><input name="" placeholder="请填写收件人姓名" type="text"></div>\
-                            <div class="form-row"><input name="" placeholder="请填写收件人手机号码" type="text"></div>\
-                            <div class="form-row"><input name="" placeholder="请填写正确的邮寄信息" type="text"></div>\
-                        </div>\
-                        <div class="u-btn js-adress-comfirm submit">确认信息</div>\
-                    </div>'
-   });
-});
 
+    if(UA.adressSubmit){
+        new anniversary.Toast({
+            'type' : 'error',
+            'text' : '您已提交过个人邮寄地址信息'
+        });
+        return;
+    }
+
+   new anniversary.AdressDialog();
+});
 
 //window.record
 $('body').on('click','.js-record',function(){
-   recordTemp_2(); 
-});
-
-function recordTemp(){
-    return    new aniversary.Dialog({
-       'title' : '我的红包',
-       'clz' : 'ui-record type-1',
-       'content' : '<div class="u-win content">\
-                        <div class="gift-list">\
-                            <div class="gift-item">现金红包15元</div>\
-                            <div class="gift-item">电竞鼠标</div>\
-                        </div>\
-                        <div class="notice">现金红包发放规则，实物道具发放规则，虚拟道具发放规则。</div>\
-                    </div>'
-   });    
-};
-
-function recordTemp_2(){
-    return    new aniversary.Dialog({
-       'title' : '我的红包',
-       'clz' : 'ui-record type-2',
-       'content' : '<div class="u-win content">\
-                        <div class="notice">现金红包和游戏虚拟道具2选1，确认领取后无法更改。</div>\
-                        <div class="gift-list">\
-                            <div class="gift-item">\
-                                <div class="item-name">现金红包15元</div>\
-                                <div class="check-box"><i></i></div>\
-                            </div>\
-                            <div class="gift-item">\
-                                <div class="item-name">现金红包15元</div>\
-                                <div class="check-box"><i></i></div>\
-                            </div>\
-                            <button class="u-btn get-gift submit">确认领取</button>\
-                        </div>\
-                        <div class="gift-list">\
-                            <div class="gift-item">\
-                                <div class="item-name goods">电竞鼠标</div>\
-                            </div>\
-                            <div class="u-btn adress js-adress">填写邮寄地址</div>\
-                        </div>\
-                    </div>'
-   });    
-};
-
-$(document).on('click','.ui-record button.submit',function(){
-    new aniversary.Toast({
-        'text' : '测试文本',
-        'type' : 'error'
-    });
+   UA.getGift ? new anniversary.RecordDialog() : new anniversary.RecordDialogSP();
 });
